@@ -1,18 +1,21 @@
 
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from '@/hooks/use-toast'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 const AuthForm = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const { signIn, signUp, isConfigured } = useAuth()
   const navigate = useNavigate()
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -20,15 +23,7 @@ const AuthForm = () => {
     setLoading(true)
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            created_at: new Date().toISOString()
-          }
-        }
-      })
+      const { error } = await signUp(email, password)
       
       if (error) throw error
       
@@ -52,10 +47,7 @@ const AuthForm = () => {
     setLoading(true)
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error } = await signIn(email, password)
       
       if (error) throw error
       
@@ -73,6 +65,30 @@ const AuthForm = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!isConfigured) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Configuration Required</CardTitle>
+          <CardDescription>Supabase configuration is missing</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Supabase Configuration Missing</AlertTitle>
+            <AlertDescription>
+              The Supabase URL and anonymous key are not properly configured. Please make sure the following environment variables are set:
+              <ul className="list-disc pl-5 mt-2">
+                <li>VITE_SUPABASE_URL</li>
+                <li>VITE_SUPABASE_ANON_KEY</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
