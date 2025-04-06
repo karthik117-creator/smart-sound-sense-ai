@@ -1,13 +1,29 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React, { useState } from 'react';
+import Layout from '@/components/layout/Layout';
+import SoundModeSelector from '@/components/sound-modes/SoundModeSelector';
+import AutoRulesSection from '@/components/auto-rules/AutoRulesSection';
+import CurrentStats from '@/components/stats/CurrentStats';
+import NextEventPreview from '@/components/stats/NextEventPreview';
+
+type SoundModeType = 'silent' | 'vibrate' | 'normal';
+
+const Index: React.FC = () => {
+  const [activeMode, setActiveMode] = useState<SoundModeType>('normal');
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <Layout>
+      <div className="space-y-6 py-4 animate-fade-in">
+        <div className="space-y-4">
+          <CurrentStats activeMode={activeMode} />
+          <NextEventPreview />
+        </div>
+        
+        <SoundModeSelector />
+        
+        <AutoRulesSection />
       </div>
-    </div>
+    </Layout>
   );
 };
 
